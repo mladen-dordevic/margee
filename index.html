@@ -1,0 +1,411 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head profile="http://www.w3.org/2005/10/profile">
+	<title>MaRGEE</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<meta charset="UTF-8">
+	<meta name="description" content="Moving and rotating kml geometry.">
+	<meta name="keywords" content="HTML,CSS,XML,JavaScript">
+	<meta name="author" content="Mladen Dordevic">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="icon-h" type="image/png" href="./images/logo.png">
+	<script src="//maps.googleapis.com/maps/api/js?v=3.17"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+	<script src="//code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+
+	<script src="./js/lib/geo.js" type="text/javascript"></script>
+	<script src="./js/lib/simplify.js" type="text/javascript"></script>
+	<script src="./js/lib/Graticule.js" type="text/javascript"></script>
+	<script src="./js/lib/save.js" type="text/javascript"></script>
+	<script src="./js/lib/jszip.js"></script>
+	<script src="./js/lib/xmlwriter.js" type="text/javascript"></script>
+	<script src="./js/worker.js" type="text/javascript"></script>
+	<script src="./js/main.js" type="text/javascript"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.9.2/themes/flick/jquery-ui.css">
+	<link rel="stylesheet" type="text/css" href="./css/normalize.css">
+	<link rel="stylesheet" type="text/css" href="./css/main.css">
+
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+	<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!--[if lt IE 9]>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/respond.js/1.3.0/respond.js"></script>
+	<![endif]-->
+	<link rel="stylesheet" type="text/css" href="./css/bootstrap.css">
+</head>
+<body onload="MARGEE.main()">
+	<!--header-->
+	<div class="navbar navbar-inverse navbar-fixed-top" style="z-index:2;">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-inverse-collapse">
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a id="navbar-toggle-menu" class="navbar-brand" id="navbar-toggle-menu" href="javascript:void(0)" >&#8801;</a>
+			<a class="navbar-brand" href="javascript:void(0)">MaRGEE</a>
+		</div>
+		<div class="navbar-collapse collapse navbar-inverse-collapse">
+			<ul class="nav navbar-nav">
+				<li class="dropdown">
+					<a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">File<b class="caret"></b></a>
+					<ul class="dropdown-menu">
+						<li onclick="$('#fileinput').click()">
+							<a href="javascript:void(0)"><span class="glyphicon glyphicon-open"></span> Upload KML/KMZ...</a>
+						</li>
+						<li data-toggle="modal" data-target="#dowload-modal">
+							<a href="javascript:void(0)"><span class="glyphicon glyphicon-save"></span> Download As...</a>
+						</li>
+					</ul>
+				</li>
+				<li class="dropdown">
+					<a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">Edit<b class="caret"></b></a>
+					<ul class="dropdown-menu">
+						<li onclick="MARGEE.undo(true)"><a href="javascript:void(0)">Undo</a></li>
+						<li onclick="MARGEE.undo(false)"><a href="javascript:void(0)">Redo</a></li>
+					</ul>
+				</li>
+				<li class="dropdown">
+					<a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">Map Options<b class="caret"></b></a>
+					<ul class="dropdown-menu">
+						<li id="toogle-grid-visibility" grid-on="true"><a href="javascript:void(0)">Toggle grid visibility</a></li>
+					</ul>
+				</li>
+				<li class="dropdown">
+					<a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">Tools<b class="caret"></b></a>
+					<ul class="dropdown-menu">
+						<li onclick="MARGEE.findEuler()"><a href="javascript:void(0)">Interpolate Rotation Parameters</a></li>
+					</ul>
+				</li>
+				<li class="dropdown" id="heade-menu-view">
+					<a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">View Panels<b class="caret"></b></a>
+					<ul class="dropdown-menu">
+						<li class="disabled" el="0" ><a href="javascript:void(0)">KML List</a></li>
+						<li class="disabled" el="1" ><a href="javascript:void(0)">Simplify</a></li>
+						<li class="disabled" el="2" ><a href="javascript:void(0)">Translate</a></li>
+						<li class="disabled" el="3" ><a href="javascript:void(0)">Rotate</a></li>
+						<li class="disabled" el="4" ><a href="javascript:void(0)">Intermediate Steps</a></li>
+						<li class="disabled" el="5" ><a href="javascript:void(0)">Batch processing</a></li>
+					</ul>
+				</li>
+			</ul>
+
+			<ul class="nav navbar-nav navbar-right">
+				<li ><a href="javascript:void(0)" data-toggle="modal" data-target="#help-modal">Help</a></li>
+				<li ><a href="javascript:void(0)" data-toggle="modal" data-target="#about-modal">About Us</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<!--modals-->
+	<div>
+		<div class="modal" id="help-modal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h4 class="modal-title">Help</h4>
+					</div>
+					<div class="modal-body">
+						Quick start:
+						<ol>
+							<li>Choose a KML file under File->Upload KML/KMZ...</li>
+							<li>Select feature/s that will be affected by action KML List</li>
+							<li>Perform action: as rotation, translation, polygon, simplification</li>
+							<li>Save your masterpiece File-> Download As...</li>
+						</ol>
+						Batch processing:
+						<ol>
+							<li>r 15 30 45 will rotate selected elements 45&deg; clockwise around Euler pole located at latitude 15 and longitude 30.</li>
+							<li>t 80 500 will translate selected elements 500 km to the heading 80&deg;</li>
+							<li>To give consecutive command, just type it in new line.</li>
+							<li> By adding 3 extra numbers to any operation you control number of intermediate steps start and end for time span.</li>
+						</ol>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal" id="dowload-modal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h4 class="modal-title">Download</h4>
+					</div>
+					<div class="modal-body">
+					    <div class="row">
+							<label for="downloadName" class="col-lg-2 control-label">Name</label>
+							<div class="col-lg-10">
+								<input type="text" class="form-control" id="downloadName" placeholder="File name">
+							</div>
+						</div>
+						<div class="row">
+							<label class="col-lg-2 control-label">Extension</label>
+							<div class="col-lg-10">
+								<div class="radio">
+									<label>
+										<input type="radio" name="file-extension" value="kml" checked="">kml
+									</label>
+								</div>
+								<div class="radio">
+									<label>
+										<input type="radio" name="file-extension" value="kmz">kmz
+									</label>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+						<button type="button" class="btn btn-success" data-dismiss="modal" onclick="MARGEE.download()">Download</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal" id="about-modal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h4 class="modal-title">About</h4>
+					</div>
+					<div class="modal-body">
+						Created by <a href="mailto:mladen.dordevic@gmail.com">Mladen Dordevic</a>
+						and
+						<a href="mailto:whitmesj@jmu.edu">Steve Whitmeyer</a>
+						from James Madison University (JMU), with support from the NSF and Google. Last updated on
+						Fri, 09 Jan 2015 19:23:42 GMT. Version 1.
+
+
+						<a href="http://www.jmu.edu/geology/whitmesj.shtml" target="_blank">
+							<img src="images/jmu_logo_purple.png" alt="..." class="img-thumbnail">
+						</a>
+						<a href="http://geode.net" target="_blank">
+							<img src="images/geode_logo_black.png" alt="..." class="img-thumbnail">
+						</a>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal" id="delete-modal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h4 class="modal-title">Delete</h4>
+					</div>
+					<div class="modal-body">
+						<p>You are about to delete selected shapes.</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+						<button type="button" class="btn btn-danger" onclick='MARGEE.shapeOptions("delete")' data-dismiss="modal">Delete</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade bs-example-modal-sm" id="alert-modal">
+			<div class="modal-dialog modal-sm">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h4 class="modal-title">Alert</h4>
+					</div>
+					<div class="modal-body">
+						<p id="alert-modal-text">You are about to delete selected shapes.</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="map-wrap">
+		<div id="map3d" style="width:100%; height:100%;"></div>
+	</div>
+
+	<!-- drag to upload file -->
+	<div id="upload" class="" draggable="true" >
+		<input type="file" id="fileinput">
+		<div class='upload-file-input-cover'>
+			<div class="upload-file-message"><h1>Drop Your KML or KMZ file here<h1></div>
+		</div>
+	</div>
+
+	<!--Main menu-->
+	<div id="side-menu" >
+		<!--Kml tree-->
+		<div class="colapsable_main panel panel-primary">
+			<div class="colapsable_hader panel-heading">
+				<h3 class="panel-title">
+					KML List
+					<span el="0" class="glyphicon glyphicon-remove pull-right icon-h"></span>
+					<span class="glyphicon glyphicon-minus pull-right icon-h"></span>
+				</h3>
+			</div>
+			<div class="colapsable_body panel-body">
+				<div class="btn-group btn-group-justified">
+					<a id="toggle-visibility" class="btn btn-default" onclick='MARGEE.shapeOptions("hide")'><span class="glyphicon glyphicon-eye-open"></span></a>
+					<a id="delete-shapes" class="btn btn-danger" data-toggle="modal" data-target="#delete-modal"><span class="glyphicon glyphicon-trash"></span></a>
+				</div>
+				<p></p>
+				<div>
+					<ol id="kmlItems"></ol>
+					<div id="kml-items-helper" style="text-align: center;padding: 30px 0px;border-bottom: 2px solid black;">	You will see your shapes here
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--edit simplify-->
+		<div class="colapsable_main panel panel-primary">
+			<div class="colapsable_hader panel-heading">
+				<h3 class="panel-title">
+					Simplify
+					<span el="1" class="glyphicon glyphicon-remove pull-right icon-h"></span>
+					<span class="glyphicon glyphicon-minus pull-right icon-h"></span>
+				</h3>
+			</div>
+			<div class="colapsable_body panel-body">
+				<div class="form-group">
+					<label class="control-label" for="simplificationKink">Threshold [km]</label>
+					<input id="simplificationKink" type="number" class="form-control" value="0" max="1000" min="0">
+					<p class="help-block">Simplify path with triangle height threshold.</p>
+				</div>
+				<button class="btn btn-default pull-right" type="button" id ="simplifyObj" onclick="MARGEE.doSomething('s')">Simplify object</button>
+			</div>
+		</div>
+		<!--translate-->
+		<div class="colapsable_main panel panel-primary">
+			<div class="colapsable_hader panel-heading">
+				<h3 class="panel-title">
+					Translate
+					<span el="2" class="glyphicon glyphicon-remove pull-right icon-h"></span>
+					<span class="glyphicon glyphicon-minus pull-right icon-h"></span>
+				</h3>
+			</div>
+			<div class="colapsable_body panel-body">
+				<div class="form-group">
+					<label class="control-label" for="translHeading">Heading [&deg;]</label>
+					<input class="form-control" type="number" id="translHeading" value="0" max="360" min="-360" onchange="MARGEE.updateTranslationHelpers()">
+				</div>
+				<div class="form-group">
+					<label class="control-label" for="translHeading">Distance [km]</label>
+					<input class="form-control" type="number" id="translateDistance" value="0" max="10000" min="-1000" onchange="MARGEE.updateTranslationHelpers()">
+				</div>
+				<button class="btn btn-default pull-right" type="button" id="translateSelected" onclick="MARGEE.doSomething('t')">Translate</button>
+			</div>
+		</div>
+		<!--rotate-->
+		<div class="colapsable_main panel panel-primary">
+			<div class="colapsable_hader panel-heading">
+				<h3 class="panel-title">
+					Rotate
+					<span el="3" class="glyphicon glyphicon-remove pull-right icon-h"></span>
+					<span class="glyphicon glyphicon-minus pull-right icon-h"></span>
+				</h3>
+			</div>
+			<div class="colapsable_body panel-body">
+				<div id="sol-all" style="display:none">
+					<label class="control-label" for="polLatitude">Rotation solutions</label>
+					<p>Click on any of two solutions to set it values to appropriate fields below and to place Euler pole marker.</p>
+					<div id="sol-one" class="euler-sol">
+						lat: <span id="sol-one-lat" value="0"></span>;
+						&nbsp; lng: <span id="sol-one-lon" value="0"></span>;
+						&nbsp; az: <span id="sol-one-az" value="0"></span>
+					</div>
+					<div id="sol-two" class="euler-sol">
+						lat: <span id="sol-two-lat" value="0"></span>;
+						&nbsp; lng: <span id="sol-two-lon" value="0"></span>;
+						&nbsp; az: <span id="sol-two-az" value="0"></span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label" for="polLatitude">Euler pole latitude [&deg;]</label>
+					<input class="form-control" type="number" id="polLatitude" value="0" max="90" min="-90" onchange="MARGEE.updatePol()">
+				</div>
+				<div class="form-group">
+					<label class="control-label" for="polLatitude">Euler pole longitude [&deg;]</label>
+					<input class="form-control" type="number" id="polLongitude" value="0" max="180" min="-180" onchange="MARGEE.updatePol()">
+				</div>
+				<div class="form-group">
+					<label class="control-label" for="polLatitude">Rotate for [&deg;]</label>
+					<input class="form-control" type="number" id="azimuth" value="0" max="360" min="-360">
+				</div>
+				<button class="btn btn-default pull-right" id="rotateSelected" type="button" onclick="MARGEE.doSomething('r')">Rotate</button>
+				</p>
+			</div>
+		</div>
+		<!--inter steps-->
+		<div class="colapsable_main panel panel-primary">
+			<div class="colapsable_hader panel-heading">
+				<h3 class="panel-title">
+					Intermediate Steps
+					<span el="4" class="glyphicon glyphicon-remove pull-right icon-h"></span>
+					<span class="glyphicon glyphicon-minus pull-right icon-h"></span>
+				</h3>
+			</div>
+			<div class="colapsable_body panel-body">
+				<div class="form-group">
+					<label class="control-label" for="steps">Number of steps</label>
+					<input class="form-control" type="number" id="steps" value="0" max="10" min="0">
+					<p class="help-block">This many steps in between curent position and final one.</p>
+				</div>
+				<div class="form-group">
+					<div class="checkbox">
+						<label>
+							<input type="checkbox" id="animate">Create Time Span
+						</label>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label">Intermediate steps range [mya]</label>
+					<div class="input-group">
+						<span class="input-group-addon" id="basic-addon1">Start</span>
+						<input type="number" id="startSt" value="0" max="1000" min="0" aria-describedby="basic-addon1" class="form-control">
+					</div>
+
+		 			<div class="input-group">
+						<span class="input-group-addon" id="basic-addon2">Stop</span>
+						<input type="number" id="stopSt" value="0" max="1000" min="0" aria-describedby="basic-addon2" class="form-control">
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--bathc-->
+		<div class="colapsable_main panel panel-primary">
+			<div class="colapsable_hader panel-heading">
+				<h3 class="panel-title">
+					Batch processing
+					<span el="5" class="glyphicon glyphicon-remove pull-right icon-h"></span>
+					<span class="glyphicon glyphicon-minus pull-right icon-h"></span>
+				</h3>
+			</div>
+			<div class="colapsable_body panel-body">
+				<div class="form-group">
+					<label class="control-label" for="batchString">Enter your commands here</label>
+					<textarea class="form-control" rows="4" id="batchString" style="width: 100%;"></textarea>
+				</div>
+				<input class="btn btn-default pull-right" type="button" id="batch" value="Run"onclick="MARGEE.batch()">
+			</div>
+		</div>
+	</div>
+	<div class="alert" style="display: none">
+    <a class="close" onclick="$('.alert').hide()">×</a>
+    <strong>Warning!</strong> Best check yo self, you're not looking too good.
+</div>
+
+<a href="#" onclick="$('alert').show()">show</a>
+</body>
+</html>

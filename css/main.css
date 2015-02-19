@@ -1,0 +1,122 @@
+
+.map-wrap {
+	position : fixed;
+	top : 64px;
+	bottom: 0px;
+	left : 0px;
+	right : 0px;
+}
+#side-menu{
+	position : relative;
+	top : 64px;
+	left : 0px;
+	max-width: 300px;
+	min-width: 200px;
+	width: 250px;
+}
+
+#kmlItems{
+	overflow:auto;
+	margin:5px;
+	border-bottom: 1px solid black;
+	border-top: 1px solid black;
+	list-style-type: none; margin: 0; padding: 0;
+	cursor: pointer;
+}
+
+#kmlItems li:hover{
+	border-bottom: 1px solid rgb(159, 137, 240);
+}
+#kmlItems .ui-selecting {
+	background: #FECA40;
+}
+#kmlItems .ui-selected {
+	background: #F39814; color: white;
+}
+#kmlItems li {
+	margin: 3px; padding: 5px;
+}
+#kmlItems .ui-icon{
+	display: inline-block;
+	float: right;
+}
+
+.hidden-shape{
+	border-left:5px solid red;
+}
+.colapsable_main {
+	display: block;
+	max-width: 300px;
+	min-width: 200px;
+	width: 250px;
+	margin-bottom: 0px !important;
+}
+.colapsable_hader {
+
+}
+
+.colapsable_body {
+
+}
+
+.icon-h {
+	margin-left: 10px;
+	cursor: pointer;
+}
+.ui-icon {
+    background-image: url(http://download.jqueryui.com/themeroller/images/ui-icons_b2dbfb_256x240.png);
+}
+
+.euler-sol {
+	cursor: pointer;
+	padding: 5px;
+	margin: 5px;
+	background: aliceblue;
+}
+.euler-sol:hover {
+	border: 1px solid #2196f3;
+}
+
+#upload{
+	display:none;
+	position: fixed;
+	left : 5px;
+	bottom: 5px;
+	top: 69px;
+	right : 5px;
+	background-color : rgba(255, 255, 255, 0.9);
+	z-index:3;
+	border: 4px dashed rgb(33, 150, 243);
+}
+
+.upload-file-message {
+	position: absolute;
+	text-align: center;
+	top: 48%;
+	width: 100%;
+}
+
+
+.upload-file-input-cover{
+	position: absolute;
+	left : 0px;
+	bottom : 0px;
+	right : 0px;
+	top : 0px;
+}
+
+#fileinput {
+	position: absolute;
+	left : 0px;
+	bottom: 0px;
+	right : 0px;
+	top : 0px;
+	opacity : 0;
+	z-index : 2;
+	width : 100%;
+}
+
+.mouse-over{
+	margin-left: 30px !important;
+	font-weight: bold !important;
+}
